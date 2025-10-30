@@ -9,13 +9,13 @@
 *.dylib
 
 # Test binary, built with `go test -c`
-*.test
+# *.test
 
 # Code coverage profiles and other test artifacts
-*.out
-coverage.*
-*.coverprofile
-profile.cov
+# *.out
+# coverage.*
+# *.coverprofile
+# profile.cov
 
 # Dependency directories (remove the comment below to include it)
 # vendor/
@@ -25,7 +25,7 @@ go.work
 go.work.sum
 
 # env file
-.env
+# .env
 
 # Editor/IDE
 # .idea/
