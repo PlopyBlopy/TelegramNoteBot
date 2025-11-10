@@ -53,15 +53,15 @@ func App(ctx context.Context, c config.Config) error {
 
 	errChan := make(chan error, 1)
 
-	go func() {
+	go func(c tgbot.Config) {
 		log.Info().Msg("bot started")
 
-		err := bot.Run()
+		err := bot.Run(c)
 		if err != nil {
 			errChan <- err
 		}
 		close(errChan)
-	}()
+	}(c.TgBot)
 
 	// Signal for Shutdown or Close
 	quit := make(chan os.Signal, 1)

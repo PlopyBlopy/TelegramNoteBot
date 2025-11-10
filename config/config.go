@@ -1,9 +1,12 @@
 package config
 
 import (
+	"flag"
 	"fmt"
 
+	"github.com/PlopyBlopy/notebot/internal/adapters/note"
 	"github.com/PlopyBlopy/notebot/pkg/tgbot"
+	"github.com/caarlos0/env/v6"
 	"github.com/joho/godotenv"
 )
 
@@ -13,16 +16,20 @@ type App struct {
 }
 
 type Config struct {
-	App   App          `env-prefix:"APP_"`
-	TgBot tgbot.Config `env-prefix:"BOT_"`
+	Environment string              `env:"ENVIRONMENT" envDefault:"development"`
+	App         App                 `env-prefix:"APP_"`
+	TgBot       tgbot.Config        `env-prefix:"BOT_"`
+	Metadata    note.MetadataConfig `env-prefix:"MD_"`
 }
 
 func InitConfig() (Config, error) {
 
-	var cfg Config
+	envFlag := flag.String("env", "development", "Environment: development|production")
 
-	err := godotenv.Load("./.env.development")
-	if err != nil {
+	godotenv.Load(".env." + *envFlag)
+
+	var cfg Config
+	if err := env.Parse(&cfg); err != nil {
 		return cfg, fmt.Errorf("incorrect format environment. %w", err)
 	}
 

@@ -2,7 +2,6 @@ package tgbot
 
 import (
 	"fmt"
-	"os"
 	"strconv"
 
 	"github.com/PlopyBlopy/notebot/internal/router"
@@ -11,7 +10,7 @@ import (
 )
 
 type Config struct {
-	Token   string `env:"BOT_TOKEN"`
+	Token   string `env:"BOT_TOKEN,required"`
 	Timeout string `env:"BOT_TIMEOUT"`
 }
 
@@ -21,7 +20,7 @@ type Bot struct {
 }
 
 func NewBot(router *router.Router, c Config) (*Bot, error) {
-	bot, err := tgbotapi.NewBotAPI(os.Getenv("BOT_TOKEN"))
+	bot, err := tgbotapi.NewBotAPI(c.Token)
 	if err != nil {
 		return nil, fmt.Errorf("couldn't create a new BotAPI. %s", err)
 	}
@@ -34,10 +33,10 @@ func NewBot(router *router.Router, c Config) (*Bot, error) {
 	}, nil
 }
 
-func (b *Bot) Run() error {
+func (b *Bot) Run(c Config) error {
 	u := tgbotapi.NewUpdate(0)
 
-	timeout, err := strconv.Atoi(os.Getenv("BOT_TIMEOUT"))
+	timeout, err := strconv.Atoi(c.Timeout)
 	if err != nil {
 		return fmt.Errorf("timeout value invalid. %w", err)
 	}
