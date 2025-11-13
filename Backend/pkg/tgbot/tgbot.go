@@ -48,6 +48,5 @@ func (b *Bot) Run(c Config) error {
 	for update := range updates {
 		b.router.HandleUpdate(b.api, update)
 	}
-
 	return nil
 }

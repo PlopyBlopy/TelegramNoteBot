@@ -37,6 +37,12 @@ func NewNoteService(ms MetadataService) *NoteManager {
 	}
 }
 
+// TODO: goroutine для записей в файлы NoteId, NoteIndex, Theme, Tags
+// Вариант для NoteId, Theme, Tags -> обьединить в одну операцию и открывать и записывать 1 раз а не 3
+// для записи в файл для NoteIndex и в Metadata: 2 goroutine, синхронизация с AddNote через 2 канала для Metadata и NoteIndex - возможно и 1 канал
+// Возможне не надо ждать результат записи - риск отката не будет
+// Вывод определить долго ли запись в файл
+// !!!!!!!!! передавать канал в анонимные функции и если ошибка добавлять значение в errChan
 func (nm *NoteManager) AddNote(title, description, theme string, tags ...string) {
 	var err error
 	if !nm.metadata.IsHaveNoteFile() {
@@ -45,7 +51,6 @@ func (nm *NoteManager) AddNote(title, description, theme string, tags ...string)
 
 		}
 	}
-
 	noteId := nm.metadata.GetNoteId()
 
 	note := Note{
@@ -81,6 +86,9 @@ func (nm *NoteManager) AddNote(title, description, theme string, tags ...string)
 
 	nm.metadata.AppendTheme(theme)
 	nm.metadata.AppendTags(tags...)
+	// syncNote(note) - добавить в срез Note
+	// syncNoteIndex(noteIndex) - добавить в срез NoteIndex
+	// syncIndex - пересчитать индексы для Note, NoteIndex, и по сути другие индексы, то есть нужно универсальная система для обновления индекса в фоне но с синхронизацией
 }
 
 // func (nm *NoteManager) GetNotes(limit int) (pointer int) {

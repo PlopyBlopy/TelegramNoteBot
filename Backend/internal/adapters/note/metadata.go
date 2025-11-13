@@ -71,8 +71,12 @@ func (m *Metadata) newFile(path string) {
 	}
 }
 
-// need synchronyzed code
+// need synchronyzed CurrentId Increment, Decrement, Value
 func (m *Metadata) GetNoteId() int {
+	// var mu sync.Mutex
+	// mu.Lock()
+	// defer mu.Unlock()
+
 	p := filepath.Join(m.BasePath(), m.MetadataFileName())
 	metadate := Metadata{}
 	b, _ := os.ReadFile(p)
