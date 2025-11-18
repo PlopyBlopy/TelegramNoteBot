@@ -1,0 +1,70 @@
+.container {
+  width: 100%;
+}
+
+.tagsRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+  min-height: 52px;
+  padding: 12px;
+  border: 1px solid #e1e5e9;
+  border-radius: 8px;
+  background-color: #fff;
+  transition: border-color 0.2s ease;
+}
+
+.tagsRow:hover {
+  border-color: #007bff;
+}
+
+/* Стили для выбранных тегов */
+.selectedTag {
+  display: inline-flex;
+  align-items: center;
+  background: #e3f2fd;
+  color: #1976d2;
+  border: 2px solid #2196f3;
+  border-radius: 16px;
+  padding: 4px 12px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  order: 1;
+  font-weight: 500;
+  position: relative;
+}
+
+.selectedTag:hover {
+  background: rgb(251, 187, 187);
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(243, 33, 33, 0.2);
+  border: 2px solid var(--color-red);
+  color: var(--color-red);
+}
+
+/* Стили для доступных тегов */
+.availableTag {
+  display: inline-flex;
+  align-items: center;
+  background: #f8f9fa;
+  border: 2px solid #e1e5e9;
+  border-radius: 16px;
+  padding: 4px 12px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  order: 2;
+}
+
+.availableTag:hover {
+  /* background: #e9ecef; */
+  border-color: var(--color-accent);
+  background: rgb(194, 251, 187);
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.placeholder {
+  color: #9ca3af;
+  font-style: italic;
+}
