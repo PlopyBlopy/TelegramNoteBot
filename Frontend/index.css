@@ -1,0 +1,61 @@
+@import url("./src/shared/components/variables.css");
+
+html,
+body {
+  padding: 0;
+  margin: 0;
+  height: 100%;
+}
+html {
+  /* font-size: 16px; 1rem = 16px */
+  font-size: var(--base-font-size); /* 1rem = 16px */
+}
+
+body {
+  font-family: "Nunito", sans-serif; /* Для основного текста */
+  font-weight: 400; /* Regular */
+  color: var(--text-color-primary);
+  background-color: var(--color-background);
+  /* line-height: 1.6; /* Межстрочный интервал для читаемости */
+}
+
+h1,
+h2,
+h3,
+h4 {
+  font-family: "Fredoka", sans-serif; /* Для заголовков и кнопок */
+  margin-top: 0;
+  /* line-height: 1.2; /* У заголовков межстрочный интервал меньше */
+}
+
+h1 {
+  font-size: 2.5rem;
+  font-weight: 600;
+}
+h2 {
+  font-size: 2rem;
+  font-weight: 600;
+}
+h3 {
+  font-size: 1.75rem;
+  font-weight: 500;
+}
+h4 {
+  font-size: 1.5rem;
+  font-weight: 500;
+}
+
+/* Для экранов меньше 768px (мобильные устройства) */
+@media (max-width: 768px) {
+  html {
+    font-size: 14px; /* Теперь 1rem = 14px */
+  }
+
+  h1 {
+    font-size: 2rem;
+  } /* 2rem = 28px */
+  h2 {
+    font-size: 1.75rem;
+  } /* 1.75rem = 24.5px */
+  /* Остальные размеры автоматически станут пропорционально меньше */
+}
