@@ -1,0 +1,85 @@
+.container {
+  width: 100%;
+}
+
+.searchBar {
+  display: flex;
+  align-items: center;
+  position: relative;
+  background: #fff;
+  border: 1px solid #e1e5e9;
+  border-radius: 8px;
+  padding: 0px 12px;
+  transition: all 0.2s ease;
+  min-height: 44px;
+}
+
+.searchBar:hover {
+  border-color: #cbd5e0;
+}
+
+.searchBar.focused {
+  border-color: #007bff;
+  box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1);
+}
+
+.searchBar.disabled {
+  background-color: #f8f9fa;
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.searchIcon {
+  display: flex;
+  align-items: center;
+  margin-right: 8px;
+  color: #6b7280;
+  flex-shrink: 0;
+}
+
+.searchBar.focused .searchIcon {
+  color: #007bff;
+}
+
+.input {
+  flex: 1;
+  border: none;
+  outline: none;
+  background: transparent;
+  font-size: var(--font-size-primary);
+  color: #374151;
+  min-width: 0;
+}
+
+.input::placeholder {
+  color: #9ca3af;
+}
+
+.input:disabled {
+  cursor: not-allowed;
+}
+
+.clearButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: none;
+  border: none;
+  color: #6b7280;
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 4px;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+  margin-left: 4px;
+}
+
+.clearButton:hover {
+  background-color: #f3f4f6;
+  color: #374151;
+}
+
+.clearButton:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
