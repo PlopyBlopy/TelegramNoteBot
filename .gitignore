@@ -24,6 +24,7 @@
 go.work
 go.work.sum
 .vscode
+desktop.ini
 
 # env file
 # .env
