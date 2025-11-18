@@ -34,3 +34,8 @@ type NoteService struct {
 func NewNoteService(nm INoteManager) (*NoteService, error) {
 	return &NoteService{noteManager: nm}, nil
 }
+
+func (ns NoteService) AddNote(note CreateNote) error {
+	ns.noteManager.AddNote(note.Title, note.Description, note.ThemeId, note.NoteColorId, note.TagIds...)
+	return nil
+}
