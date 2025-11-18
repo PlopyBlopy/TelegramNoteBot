@@ -1,0 +1,5 @@
+.icon {
+  width: var(--icon-size-largest);
+  height: var(--icon-size-largest);
+  flex-shrink: 0; /* Предотвращает сжатие иконки */
+}
