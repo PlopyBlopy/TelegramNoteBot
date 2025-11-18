@@ -1,0 +1,16 @@
+.word {
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  padding: 0.2rem 0.5rem 0.2rem 0.5rem;
+  background-color: rgb(211, 211, 211);
+  line-height: 1; /* Важно! Убираем влияние высоты строки на высоту кнопки */
+
+  border-radius: var(--border-radius-large);
+  border-width: 0.15rem;
+  border-color: rgb(255, 255, 255);
+  border-style: solid;
+
+  font-weight: var(--font-weight-600);
+  color: var(--text-color-primary);
+}
