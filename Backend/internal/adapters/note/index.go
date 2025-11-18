@@ -8,50 +8,58 @@ import (
 	"time"
 )
 
-type OffSize struct {
-	Id   int
-	Off  int64
-	Size int
-}
-
 type Index struct {
+	OffSize          []OffSize
 	NoteIndexes      []NoteIndex
 	CompletedNotes   []Note
 	UnCompletedNotes []Note
-	DeletedNotes     []Note
-	OffSize          []OffSize
-	ms               MetadataPathProvider
 }
 
-type MetadataPathProvider interface {
+type OffSize struct {
+	Off  int64
+	Id   int
+	Size int
+}
+
+type IMetadataPathProvider interface {
 	BasePath() string
 	IndexPath() string
 	NotePath() string
 	NoteFileName() string
+	NoteIndexFileName() string
 }
 
-func NewIndex(ms MetadataPathProvider) *Index {
-	in := &Index{
-		NoteIndexes:      []NoteIndex{},
-		CompletedNotes:   make([]Note, 0),
-		UnCompletedNotes: make([]Note, 0),
-		DeletedNotes:     make([]Note, 0),
-		OffSize:          make([]OffSize, 0),
-		ms:               ms,
+type IndexManager struct {
+	i            Index
+	metadataPath IMetadataPathProvider
+}
+
+type IIndexManager interface {
+	AddNote(note Note) error
+	AddNoteIndex(noteIndex NoteIndex) error
+}
+
+func NewIndexManager(metadataPath IMetadataPathProvider) (*IndexManager, error) {
+	im := &IndexManager{
+		i: Index{
+			NoteIndexes:      []NoteIndex{},
+			OffSize:          []OffSize{},
+			CompletedNotes:   []Note{},
+			UnCompletedNotes: []Note{},
+		},
+		metadataPath: metadataPath,
 	}
 
-	in.scan()
-
-	return in
+	return im, nil
 }
 
-func (in *Index) scan() error {
+func (im *IndexManager) Scan() error {
 
-	in.scanNoteIndex()
+	im.scanNoteIndex()
 
 	scans := []func() error{
-		in.scanNote,
-		in.scanOffSize,
+		im.scanNote,
+		im.scanOffSize,
 	}
 
 	doneChan := make(chan bool, len(scans))
@@ -79,42 +87,41 @@ func (in *Index) scan() error {
 	return nil
 }
 
-func (in *Index) scanNote() error {
-	p := filepath.Join(in.ms.BasePath(), in.ms.NotePath(), in.ms.NoteFileName())
+func (im *IndexManager) scanNoteIndex() {
+	p := filepath.Join(im.metadataPath.BasePath(), im.metadataPath.IndexPath(), im.metadataPath.NoteIndexFileName())
+	b, _ := os.ReadFile(p)
+	ni := make([]NoteIndex, 0)
+	json.Unmarshal(b, &ni)
+
+	im.i.NoteIndexes = ni
+}
+
+func (im *IndexManager) scanNote() error {
+	p := filepath.Join(im.metadataPath.BasePath(), im.metadataPath.NotePath(), im.metadataPath.NoteFileName())
 	b, _ := os.ReadFile(p)
 	n := make([]Note, 0)
 	json.Unmarshal(b, &n)
 
 	for i := 0; i < len(n); i++ {
 
-		if in.NoteIndexes[i].Id != n[i].Id {
+		if im.i.NoteIndexes[i].Id != n[i].Id {
 			return errors.New("failed scanNote: NoteIndexes.Id not equal note.Id")
 		}
 
-		switch in.NoteIndexes[i].Status {
-		case 0:
-			in.UnCompletedNotes = append(in.UnCompletedNotes, n[i])
-		case 1:
-			in.CompletedNotes = append(in.CompletedNotes, n[i])
-		case 2:
-			in.DeletedNotes = append(in.DeletedNotes, n[i])
+		switch im.i.NoteIndexes[i].Completed {
+		case false:
+			im.i.UnCompletedNotes = append(im.i.UnCompletedNotes, n[i])
+		case true:
+			im.i.CompletedNotes = append(im.i.CompletedNotes, n[i])
 		}
 	}
 	return nil
 }
-func (in *Index) scanNoteIndex() {
-	p := filepath.Join(in.ms.BasePath(), in.ms.IndexPath(), noteIndexFileName)
-	b, _ := os.ReadFile(p)
-	ni := make([]NoteIndex, 0)
-	json.Unmarshal(b, &ni)
 
-	in.NoteIndexes = ni
-}
+func (im *IndexManager) scanOffSize() error {
+	offSize := make([]OffSize, 0, len(im.i.NoteIndexes))
 
-func (in *Index) scanOffSize() error {
-	offSize := make([]OffSize, 0, len(in.NoteIndexes))
-
-	for _, ni := range in.NoteIndexes {
+	for _, ni := range im.i.NoteIndexes {
 		offSize = append(offSize, OffSize{
 			Id:   ni.Id,
 			Off:  ni.Off,
@@ -122,43 +129,60 @@ func (in *Index) scanOffSize() error {
 		})
 	}
 
-	in.OffSize = offSize
+	im.i.OffSize = offSize
+
+	return nil
+}
+
+func (im *IndexManager) AddNote(note Note) error {
+	im.i.CompletedNotes = append(im.i.CompletedNotes, note)
+
+	return nil
+}
+
+func (im *IndexManager) AddNoteIndex(noteIndex NoteIndex) error {
+	im.i.NoteIndexes = append(im.i.NoteIndexes, noteIndex)
+	im.i.OffSize = append(im.i.OffSize, OffSize{
+		Id:   noteIndex.Id,
+		Off:  noteIndex.Off,
+		Size: noteIndex.Size,
+	})
 
 	return nil
 }
 
 // return cursor, error
-func (in *Index) GetCompletedNotes(cursor, limit int) ([]Note, int, error) {
-	start, end := in.getCursorIndex(cursor, limit, len(in.CompletedNotes))
+func (im *IndexManager) GetCompletedNotes(cursor, limit int) ([]Note, int, error) {
+	start, end := im.getCursorIndex(cursor, limit, len(im.i.CompletedNotes))
 	if start == -1 || end == -1 {
 		return nil, -1, nil
 	}
-	n := in.CompletedNotes[start:end]
+	n := im.i.CompletedNotes[start:end]
 
 	return n, end, nil
 }
 
-func (in *Index) GetUncompletedNotes(cursor, limit int) ([]Note, int, error) {
-	start, end := in.getCursorIndex(cursor, limit, len(in.UnCompletedNotes))
+func (im *IndexManager) GetUncompletedNotes(cursor, limit int) ([]Note, int, error) {
+	start, end := im.getCursorIndex(cursor, limit, len(im.i.UnCompletedNotes))
 	if start == -1 || end == -1 {
 		return nil, -1, nil
 	}
-	n := in.UnCompletedNotes[start:end]
+	n := im.i.UnCompletedNotes[start:end]
 
 	return n, end, nil
 }
 
-func (in *Index) GetDeletedNotes(cursor, limit int) ([]Note, int, error) {
-	start, end := in.getCursorIndex(cursor, limit, len(in.DeletedNotes))
-	if start == -1 || end == -1 {
-		return nil, -1, nil
-	}
-	n := in.DeletedNotes[start:end]
+// func (im *IndexManager) GetDeletedNotes(cursor, limit int) ([]Note, int, error) {
+// 	start, end := in.getCursorIndex(cursor, limit, len(in.DeletedNotes))
+// 	if start == -1 || end == -1 {
+// 		return nil, -1, nil
+// 	}
+// 	n := im.DeletedNotes[start:end]
 
-	return n, end, nil
-}
+// 	return n, end, nil
+// }
 
-func (in *Index) getCursorIndex(cursor, limit, notesLim int) (start, end int) {
+func (im *IndexManager) getCursorIndex(cursor, limit, notesLim int) (start, end int) {
 	cl := cursor + 1 + limit
 
 	if cl > notesLim {
