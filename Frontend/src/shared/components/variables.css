@@ -1,0 +1,140 @@
+:root {
+  --font-family-fredoka: "Fredoka", sans-serif;
+  --font-family-nunito: "Nunito", sans-serif;
+
+  /* Базовый размер шрифта (1rem) */
+  --base-font-size: 16px;
+
+  /* Шкала размеров шрифтов (основанная на rem) */
+  --font-size-primary: 1rem;
+  --font-size-secondary: 0.875rem;
+  --font-size-lg: 1.25rem;
+  --font-size-xl: 1.5rem;
+  --font-size-2xl: 2rem;
+
+  /* Начертания шрифтов */
+  --font-weight-100: 100;
+  --font-weight-200: 200;
+  --font-weight-300: 300;
+  --font-weight-400: 400;
+  --font-weight-500: 500;
+  --font-weight-600: 600;
+  --font-weight-700: 700;
+  --font-weight-800: 800;
+  --font-weight-900: 900;
+
+  /* Межстрочные интервалы */
+  /* --line-height-normal: 1.6rem;
+  --line-height-tight: 1.2rem; */
+  --line-height-normal: 1rem;
+  --line-height-tight: 0.7rem;
+
+  /* Цвета текста */
+  --text-color-primary: #212529;
+  --text-color-secondary: #6c757d;
+  --text-color-light: #ffffff;
+  --text-color-grey-light: #e9ecef;
+  --text-color-red: #dc3545;
+  --text-color-accent: #32cd32;
+
+  /* Остальные цвета */
+  --color-light: #ffffff;
+  --color-grey-lighter: #f8f9fa;
+  --color-grey-light: #e9ecef;
+  --color-grey-medium: #dee2e6;
+  --color-grey-medium-dark: #c2c5c9;
+  --color-grey-dark: #6c757d;
+  --color-grey-darker: #212529;
+
+  --color-accent: #32cd32;
+  --color-accent-lighter: #82e082;
+  --color-accent-light: #28a428;
+  --color-accent-dark: #228b22;
+
+  --color-green: #16cc16;
+  --color-red: #dc3545;
+  --color-blue: #0d6efd;
+  --color-orange: #fd7e14;
+  --color-orange-light: #fcad37;
+  --color-yellow: #ffd700;
+
+  --color-grey-light-20: rgba(233, 236, 239, 0.2);
+  --color-grey-dark-20: rgba(108, 117, 125, 0.2);
+
+  --color-background: #f8f9fa;
+  --color-header: #f8f9fa;
+
+  /* Высоты элементов (основанные на rem) */
+  --button-height-normal: 2.5rem; /* 40px на десктопе, 35px на мобильном */
+  --button-height-large: 3rem; /* 48px на десктопе, 42px на мобильном */
+  --button-height-small: 2rem; /* 32px на десктопе, 28px на мобильном */
+
+  /* Размеры иконок (основанные на rem) */
+  --icon-size-small: 1rem; /* 16px / 14px */
+  --icon-size-normal: 1.25rem; /* 20px / 17.5px */
+  --icon-size-large: 1.5rem; /* 24px / 21px */
+  --icon-size-largest: 4rem; /* 24px / 21px */
+
+  --border-radius-large: 1rem;
+  --border-radius-normal: 0.75rem;
+  --border-radius-small: 0.5rem;
+
+  /* header */
+  --header-text-color: #ffffff;
+
+  /* note-card */
+  --note-text-color: #2c3e50; /* Темно-синий серый - хорошо читается на пастельных фонах */
+  --note-text-secondary: #414d58; /* Для второстепенного текста */
+
+  --note-color-1: hsl(346, 100%, 91%); /* Розовый */
+  --note-color-2: hsl(32, 100%, 86%); /* Персиковый */
+  --note-color-3: hsl(60, 100%, 86%); /* Светло-желтый */
+  --note-color-4: hsl(120, 100%, 92%); /* Мятный */
+  --note-color-5: hsl(201, 100%, 92%); /* Голубой */
+  --note-color-6: hsl(265, 100%, 92%); /* Лавандовый */
+  --note-color-7: hsl(335, 100%, 92%); /* Розово-персиковый */
+  --note-color-8: hsl(155, 100%, 92%); /* Аквамариновый */
+  --note-color-9: hsl(39, 100%, 92%); /* Песочный */
+  --note-color-10: hsl(95, 100%, 92%); /* Светло-зеленый */
+  --note-color-11: hsl(215, 100%, 92%); /* Светло-синий */
+  --note-color-12: hsl(279, 100%, 92%); /* Сиреневый */
+
+  /* tag */
+  --tag-text-color: #37474f; /* Темно-серый синий */
+
+  --tag-color-1: hsl(208, 89%, 82%); /* Голубой */
+  --tag-color-2: hsl(275, 47%, 77%); /* Фиолетовый */
+  --tag-color-3: hsl(120, 38%, 75%); /* Зеленый */
+  --tag-color-4: hsl(33, 100%, 83%); /* Оранжевый */
+  --tag-color-5: hsl(327, 47%, 77%); /* Розовый */
+  --tag-color-6: hsl(170, 38%, 75%); /* Бирюзовый */
+  --tag-color-7: hsl(41, 100%, 83%); /* Желтый */
+  --tag-color-8: hsl(20, 20%, 77%); /* Бежевый */
+  --tag-color-9: hsl(223, 47%, 77%); /* Синий */
+  --tag-color-10: hsl(87, 47%, 77%); /* Лаймовый */
+  --tag-color-11: hsl(44, 93%, 83%); /* Кремовый */
+  --tag-color-12: hsl(180, 47%, 77%); /* Лимонный */
+}
+
+[data-theme="dark"] {
+  --color-accent: #208520;
+
+  --color-background: #252525;
+  --color-header: #2c2c2c;
+
+  /* header */
+  --header-text-color: #edeff3;
+
+  /* note-card */
+  --note-text-color: #3f4041; /* Светлый текст для темного фона */
+  --note-text-secondary: #414344; /* Для второстепенного текста */
+
+  /* tag */
+  --tag-text-color: #2b2b2b; /* Белый текст для темного фона */
+}
+
+@media (max-width: 768px) {
+  :root {
+    --base-font-size: 14px;
+  }
+}
