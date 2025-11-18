@@ -1,0 +1,22 @@
+.container {
+  position: sticky;
+  z-index: 1000;
+  width: 70vw;
+  margin-bottom: 1rem;
+  top: 0;
+  background-color: var(--color-header);
+
+  border-radius: 0rem 0rem var(--border-radius-normal) var(--border-radius-normal);
+
+  box-shadow:
+    0 2px 4px rgba(0, 0, 0, 0.1),
+    0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.items {
+  display: flex;
+  justify-content: space-between; /* ← лево-право автоматически */
+  align-items: center; /* ← выравнивание по вертикали */
+  color: var(--header-text-color);
+  padding: 0.3rem;
+}
