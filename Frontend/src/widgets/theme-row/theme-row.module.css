@@ -1,0 +1,38 @@
+.button {
+  padding: 0.5rem 1rem;
+  font-size: var(--font-size-lg);
+  color: var(--text-color-primary);
+  background-color: transparent;
+  border: none;
+  border-bottom: 2px solid transparent; /* Резервируем место для border */
+
+  transform: scale(1);
+  box-shadow: none;
+  transition: all 0.2s ease; /* Унифицируем transition */
+}
+
+.button:hover {
+  color: var(--color-accent);
+  background-color: var(--color-light);
+  transform: scale(1.1); /* Уменьшаем масштаб для стабильности */
+  border-bottom: 2px solid var(--color-accent); /* Такая же толщина как у selectButton */
+}
+
+.button:active {
+  background-color: var(--color-grey-light);
+  transform: scale(0.95);
+  transition: all 0.1s ease;
+}
+
+.selectButton {
+  padding: 0.5rem 1rem;
+  font-size: var(--font-size-lg);
+  color: var(--color-blue);
+  background-color: var(--color-light);
+  border: none;
+  border-bottom: 2px solid var(--color-blue);
+
+  transform: scale(1);
+  box-shadow: none;
+  transition: all 0.2s ease; /* Такое же время как у button */
+}
