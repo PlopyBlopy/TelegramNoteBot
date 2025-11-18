@@ -2,6 +2,7 @@ package note
 
 import (
 	"encoding/json"
+	"fmt"
 	"os"
 	"path/filepath"
 )
@@ -15,76 +16,176 @@ type MetadataConfig struct {
 	NoteFilename      string `env:"MD_NOTE_FILE_NAME"`
 }
 
-type Metadata struct {
-	CurrentId  int      `json:"current_id"` // last note id for autoincrement
-	IsHaveNote bool     `json:"is_have_note"`
-	Themes     []string `json:"themes"`
-	Tags       []string `json:"tags"`
-	mc         MetadataConfig
+type Tag struct {
+	Id      int
+	Title   string
+	ColorId int
 }
 
-func NewMetadataService(c MetadataConfig) *Metadata {
-	m := &Metadata{mc: c}
-	files, _ := os.ReadDir(m.BasePath())
+type Theme struct {
+	Id    int
+	Title string
+}
 
+// срезы для цветов тега и карточек заметок
+type Color struct {
+	Id       int
+	Name     string
+	Variable string
+}
+
+type Metadata struct {
+	CurrentId      int     `json:"current_id"` // last note id for autoincrement
+	Themes         []Theme `json:"themes"`
+	Tags           []Tag   `json:"tags"`
+	TagColors      []Color `json:"tag_colors"`
+	NoteCardColors []Color `json:"note_card_colors"`
+}
+
+type MetadataManager struct {
+	m              *Metadata
+	metadataConfig *MetadataConfig
+}
+
+type IMetadataManager interface {
+	GetNoteId() int
+	BasePath() string
+	IndexPath() string
+	NotePath() string
+	NoteFileName() string
+	NoteIndexFileName() string
+
+	AddTheme(theme Theme) error
+	AddTag(tag Tag) error
+}
+
+func NewMetadataManager(c *MetadataConfig) (*MetadataManager, error) {
+	mm := &MetadataManager{
+		m: &Metadata{
+			CurrentId:      0,
+			Themes:         make([]Theme, 0),
+			Tags:           make([]Tag, 0),
+			TagColors:      make([]Color, 0),
+			NoteCardColors: make([]Color, 0),
+		},
+		metadataConfig: c,
+	}
+
+	err := mm.getMetadataOrCreate()
+	if err != nil {
+		return nil, fmt.Errorf("failed new metadata: %w", err)
+	}
+
+	mm.metadataConfig = c
+
+	return mm, nil
+}
+
+/*
+Проверка наличия файла metadata.json и чтение данных в структуру Metadata
+В случае если его нету, создастся новый файл metadata.json
+*/
+func (mm MetadataManager) getMetadataOrCreate() error {
 	isentry := false
 
-	for _, file := range files {
-		if !file.IsDir() && file.Name() == m.MetadataFileName() {
-			isentry = true
-			break
+	files, _ := os.ReadDir(mm.metadataConfig.Basepath)
+
+	if len(files) != 0 {
+		for _, file := range files {
+			if !file.IsDir() && file.Name() == mm.metadataConfig.MetadataFilename {
+				isentry = true
+				break
+			}
 		}
 	}
 
-	notePath := filepath.Join(m.BasePath(), m.NotePath())
-	files, _ = os.ReadDir(notePath)
-	if len(files) != 0 {
-		m.IsHaveNote = true
-	}
-
-	p := filepath.Join(m.BasePath(), m.MetadataFileName())
+	p := filepath.Join(mm.metadataConfig.Basepath, mm.metadataConfig.MetadataFilename)
 
 	if !isentry {
-		m.newFile(p)
+		b, _ := json.Marshal(mm.m)
+		os.Create(p)
+		f, _ := os.OpenFile(p, os.O_RDWR, 0666)
+		n, err := f.Write(b)
+		if n == 0 {
+
+		}
+		if err != nil {
+
+		}
 	} else {
 		b, _ := os.ReadFile(p)
-		_ = json.Unmarshal(b, &m)
+		_ = json.Unmarshal(b, &mm.m)
 
 	}
 
-	return m
+	return nil
 }
 
-// TODO: из .env если файла нету или его данные изменены -> замена на новые
-func (m *Metadata) newFile(path string) {
-	m.CurrentId = 0
+func (mm *MetadataManager) AddTheme(theme Theme) error {
+	metadata := Metadata{}
 
-	b, _ := json.Marshal(m)
-	os.Create(path)
-	f, _ := os.OpenFile(path, os.O_RDWR, 0666)
-	n, err := f.Write(b)
-	if n == 0 {
+	p := filepath.Join(mm.BasePath(), mm.MetadataFileName())
+	b, _ := os.ReadFile(p)
+	json.Unmarshal(b, &metadata)
 
+	for i := 0; i < len(metadata.Themes); i++ {
+		if metadata.Themes[i].Title == theme.Title {
+			return fmt.Errorf("failed append theme, an themes with a similar title already exists, title: %s", theme.Title)
+
+		}
 	}
-	if err != nil {
 
+	// append to file slice
+	metadata.Themes = append(metadata.Themes, theme)
+	// append to virtual slice
+	mm.m.Themes = append(mm.m.Themes, theme)
+
+	b, _ = json.Marshal(metadata)
+	os.WriteFile(p, b, 0666)
+
+	return nil
+}
+
+// append tags to file and virtual
+func (mm *MetadataManager) AddTag(tag Tag) error {
+
+	metadata := Metadata{}
+
+	p := filepath.Join(mm.BasePath(), mm.MetadataFileName())
+	b, _ := os.ReadFile(p)
+	json.Unmarshal(b, &metadata)
+
+	for i := 0; i < len(metadata.Tags); i++ {
+		if metadata.Tags[i].Title == tag.Title {
+			return fmt.Errorf("failed append tags, an tag with a similar title already exists, title: %s", tag.Title)
+		}
 	}
+
+	// append to file slice
+	metadata.Tags = append(metadata.Tags, tag)
+	// append to virtual slice
+	mm.m.Tags = append(mm.m.Tags, tag)
+
+	b, _ = json.Marshal(metadata)
+	os.WriteFile(p, b, 0666)
+
+	return nil
 }
 
 // need synchronyzed CurrentId Increment, Decrement, Value
-func (m *Metadata) GetNoteId() int {
+func (mm *MetadataManager) GetNoteId() int {
 	// var mu sync.Mutex
 	// mu.Lock()
 	// defer mu.Unlock()
 
-	p := filepath.Join(m.BasePath(), m.MetadataFileName())
+	p := filepath.Join(mm.BasePath(), mm.MetadataFileName())
 	metadate := Metadata{}
 	b, _ := os.ReadFile(p)
 	json.Unmarshal(b, &metadate)
 
 	id := metadate.CurrentId
 	metadate.CurrentId += 1
-	m.CurrentId += 1
+	mm.m.CurrentId += 1
 
 	b, _ = json.Marshal(metadate)
 	os.WriteFile(p, b, 0666)
@@ -92,75 +193,11 @@ func (m *Metadata) GetNoteId() int {
 	return id
 }
 
-func (m *Metadata) BasePath() string          { return m.mc.Basepath }
-func (m *Metadata) IndexPath() string         { return m.mc.Indexpath }
-func (m *Metadata) NotePath() string          { return m.mc.Notepath }
-func (m *Metadata) MetadataFileName() string  { return m.mc.MetadataFilename }
-func (m *Metadata) NoteIndexFileName() string { return m.mc.NoteIndexFilename }
-func (m *Metadata) NoteFileName() string      { return m.mc.NoteFilename }
-func (m *Metadata) IsHaveNoteFile() bool      { return m.IsHaveNote }
+// append theme to file and virtual
 
-func (m *Metadata) HaveNote(isHave bool) {
-	m.IsHaveNote = isHave
-
-	p := filepath.Join(m.BasePath(), m.MetadataFileName())
-	metadate := Metadata{}
-	b, _ := os.ReadFile(p)
-	json.Unmarshal(b, &metadate)
-
-	metadate.IsHaveNote = isHave
-	m.IsHaveNote = isHave
-
-	b, _ = json.Marshal(metadate)
-	os.WriteFile(p, b, 0666)
-}
-func (m *Metadata) AppendTheme(theme string) {
-	p := filepath.Join(m.BasePath(), m.MetadataFileName())
-	metadate := Metadata{}
-	b, _ := os.ReadFile(p)
-	json.Unmarshal(b, &metadate)
-
-	for i := 0; i < len(metadate.Themes); i++ {
-		if metadate.Themes[i] == theme {
-			return
-		}
-	}
-
-	metadate.Themes = append(metadate.Themes, theme)
-	m.Themes = append(m.Themes, theme)
-
-	b, _ = json.Marshal(metadate)
-	os.WriteFile(p, b, 0666)
-}
-
-func (m *Metadata) AppendTags(tags ...string) {
-	if len(tags) == 0 {
-		return
-	}
-	p := filepath.Join(m.BasePath(), m.MetadataFileName())
-	metadate := Metadata{}
-	b, _ := os.ReadFile(p)
-	json.Unmarshal(b, &metadate)
-
-	appendTags := make([]int, len(tags))
-
-	// TODO: на битовую маску
-	for i := 0; i < len(metadate.Tags); i++ {
-		for j := 0; j < len(tags); j++ {
-			if metadate.Tags[i] == tags[j] {
-				appendTags[j] = 1
-				return
-			}
-		}
-	}
-
-	for i := 0; i < len(appendTags); i++ {
-		if appendTags[i] == 0 {
-			metadate.Tags = append(metadate.Tags, tags[i])
-			m.Tags = append(m.Tags, tags[i])
-		}
-	}
-
-	b, _ = json.Marshal(metadate)
-	os.WriteFile(p, b, 0666)
-}
+func (mm *MetadataManager) BasePath() string          { return mm.metadataConfig.Basepath }
+func (mm *MetadataManager) IndexPath() string         { return mm.metadataConfig.Indexpath }
+func (mm *MetadataManager) NotePath() string          { return mm.metadataConfig.Notepath }
+func (mm *MetadataManager) MetadataFileName() string  { return mm.metadataConfig.MetadataFilename }
+func (mm *MetadataManager) NoteIndexFileName() string { return mm.metadataConfig.NoteIndexFilename }
+func (mm *MetadataManager) NoteFileName() string      { return mm.metadataConfig.NoteFilename }
