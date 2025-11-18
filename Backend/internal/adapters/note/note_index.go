@@ -1,17 +1,115 @@
 package note
 
-import "time"
+import (
+	"encoding/json"
+	"fmt"
+	"os"
+	"path/filepath"
+	"time"
+)
 
-// TODO: bit mask for tags
+// нету функционала для очистки удаленных note в runtime, очистка только при старте приложения
 type NoteIndex struct {
-	Id        int       `json:"id"`
-	Status    int       `json:"status"` // 0 - не выполнено, 1 - выполнено, 2 - удалена
-	Theme     string    `json:"theme"`  // есть всегда, default = без темы
-	Tags      []string  `json:"tags"`
-	Off       int64     `json:"off"`  // offset
-	Size      int       `json:"size"` // writed bytes
-	UpdatedAt time.Time `json:"updated_at"`
-	CreatedAt time.Time `json:"created_at"`
+	Id          int       `json:"id"`
+	Completed   bool      `json:"completed"` // 0 - не выполнено, 1 - выполнено, 2 - удалена
+	Deleted     bool      `json:"deleted"`
+	ThemeId     int       `json:"theme_id"` // есть всегда, default = без темы
+	TagIds      []int     `json:"tag_ids"`
+	NoteColorId int       `json:"note_color_id"`
+	Off         int64     `json:"off"`  // offset
+	Size        int       `json:"size"` // writed bytes
+	UpdatedAt   time.Time `json:"updated_at"`
+	CreatedAt   time.Time `json:"created_at"`
 }
 
-const noteIndexFileName = "note_index.json"
+type NoteIndexManager struct {
+	metadataManager IMetadataManager
+	indexManager    IIndexManager
+}
+
+func NewNoteIndexManager(mm IMetadataManager, im IIndexManager) (*NoteIndexManager, error) {
+	ni := &NoteIndexManager{
+		metadataManager: mm,
+		indexManager:    im,
+	}
+
+	err := ni.existOrCreate()
+	if err != nil {
+		return nil, fmt.Errorf("failed new note: %w", err)
+	}
+
+	ni.metadataManager = mm
+
+	return ni, nil
+}
+
+type INoteIndexManager interface {
+	AddNoteIndex(noteId, themeId, size, noteColorId int, off int64, tagIds ...int) error
+}
+
+// Проверка есть ли noteIndex file если нет создать пустым
+func (ni NoteIndexManager) existOrCreate() error {
+	isentry := false
+
+	files, _ := os.ReadDir(ni.metadataManager.IndexPath())
+
+	noteIndexFileName := ni.metadataManager.NoteIndexFileName()
+	for _, file := range files {
+		if !file.IsDir() && file.Name() == noteIndexFileName {
+			isentry = true
+			break
+		}
+	}
+
+	p := filepath.Join(ni.metadataManager.BasePath(), ni.metadataManager.IndexPath(), noteIndexFileName)
+
+	empty := []interface{}{}
+
+	if !isentry {
+		os.Create(p)
+		b, _ := json.Marshal(empty)
+		f, _ := os.OpenFile(p, os.O_RDWR, 0666)
+		n, err := f.Write(b)
+		if n == 0 {
+
+		}
+		if err != nil {
+
+		}
+	}
+
+	return nil
+}
+
+func (ni NoteIndexManager) AddNoteIndex(noteId, themeId, noteColorId, size int, off int64, tagIds ...int) error {
+	createdAt := time.Now()
+
+	noteIndex := NoteIndex{
+		Id:          noteId,
+		Completed:   false,
+		Deleted:     false,
+		ThemeId:     themeId,
+		TagIds:      tagIds,
+		NoteColorId: noteColorId,
+		Off:         off,
+		Size:        size,
+		UpdatedAt:   createdAt,
+		CreatedAt:   createdAt,
+	}
+
+	indexPath := filepath.Join(ni.metadataManager.BasePath(), ni.metadataManager.IndexPath(), ni.metadataManager.NoteIndexFileName())
+	indexFile, _ := os.OpenFile(indexPath, os.O_RDWR, 0666)
+	defer indexFile.Close()
+	b, err := json.Marshal(noteIndex)
+	if err != nil {
+		return err
+	}
+
+	WriteAt(b, indexFile)
+
+	if err := ni.indexManager.AddNoteIndex(noteIndex); err != nil {
+
+	}
+
+	return nil
+}
