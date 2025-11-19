@@ -57,16 +57,21 @@ type IMetadataManager interface {
 
 	AddTheme(theme Theme) error
 	AddTag(tag Tag) error
+
+	GetTags() ([]Tag, error)
+	GetTagIds() ([]int, error)
+	GetThemes() ([]Theme, error)
+	GetThemeIds() ([]int, error)
 }
 
 func NewMetadataManager(c *MetadataConfig) (*MetadataManager, error) {
 	mm := &MetadataManager{
 		m: &Metadata{
 			CurrentId:      0,
-			Themes:         make([]Theme, 0),
-			Tags:           make([]Tag, 0),
-			TagColors:      make([]Color, 0),
-			NoteCardColors: make([]Color, 0),
+			Themes:         []Theme{},
+			Tags:           []Tag{},
+			TagColors:      []Color{},
+			NoteCardColors: []Color{},
 		},
 		metadataConfig: c,
 	}
@@ -191,6 +196,32 @@ func (mm *MetadataManager) GetNoteId() int {
 	os.WriteFile(p, b, 0666)
 
 	return id
+}
+
+func (mm *MetadataManager) GetTags() ([]Tag, error) {
+
+	return mm.m.Tags, nil
+}
+func (mm *MetadataManager) GetTagIds() ([]int, error) {
+	tagIds := make([]int, 0, len(mm.m.Tags))
+
+	for _, v := range mm.m.Tags {
+		tagIds = append(tagIds, v.Id)
+	}
+
+	return tagIds, nil
+}
+func (mm *MetadataManager) GetThemes() ([]Theme, error) {
+	return mm.m.Themes, nil
+}
+func (mm *MetadataManager) GetThemeIds() ([]int, error) {
+	themeIds := make([]int, 0, len(mm.m.Themes))
+
+	for _, v := range mm.m.Themes {
+		themeIds = append(themeIds, v.Id)
+	}
+
+	return themeIds, nil
 }
 
 // append theme to file and virtual

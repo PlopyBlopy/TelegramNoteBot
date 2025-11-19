@@ -1,30 +1,14 @@
 package service
 
 import (
-	"time"
+	"fmt"
 
 	"github.com/PlopyBlopy/notebot/internal/adapters/note"
 )
 
 type INoteManager interface {
 	AddNote(title, description string, themeId, noteColorId int, tagIds ...int) error
-}
-
-type CreateNote struct {
-	Title       string
-	Description string
-	ThemeId     int
-	TagIds      []int
-	NoteColorId int
-}
-
-type NoteCard struct {
-	Note        note.Note
-	Completed   bool
-	ThemeId     int
-	TagsId      []int
-	NoteColorId int
-	CreatedAt   time.Time
+	GetFilteredNoteCards(search string, limit, themeId int, tags ...int) ([]note.NoteCard, error)
 }
 
 type NoteService struct {
@@ -35,7 +19,15 @@ func NewNoteService(nm INoteManager) (*NoteService, error) {
 	return &NoteService{noteManager: nm}, nil
 }
 
-func (ns NoteService) AddNote(note CreateNote) error {
+func (ns NoteService) AddNote(note note.CreateNote) error {
 	ns.noteManager.AddNote(note.Title, note.Description, note.ThemeId, note.NoteColorId, note.TagIds...)
 	return nil
+}
+
+func (ns NoteService) GetFilteredNoteCards(search string, limit, themeId int, tagIds ...int) ([]note.NoteCard, error) {
+	noteCards, err := ns.noteManager.GetFilteredNoteCards(search, limit, themeId, tagIds...)
+	if err != nil {
+		return nil, fmt.Errorf("failed get filtered note cards")
+	}
+	return noteCards, nil
 }

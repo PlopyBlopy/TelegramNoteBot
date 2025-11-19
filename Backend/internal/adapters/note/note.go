@@ -5,23 +5,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
-	"time"
 )
-
-type Note struct {
-	Id          int
-	Title       string
-	Description string
-}
-
-type NoteCard struct {
-	Note        Note
-	Completed   bool
-	ThemeId     int
-	TagsId      []int
-	NoteColorId int
-	CreatedAt   time.Time
-}
 
 type NoteManager struct {
 	metadataManager  IMetadataManager
@@ -106,6 +90,88 @@ func (nm *NoteManager) AddNote(title, description string, themeId, noteColorId i
 	}
 
 	return nil
+}
+
+func (nm NoteManager) GetFilteredNoteCards(search string, limit, themeId int, tagIds ...int) ([]NoteCard, error) {
+	filter := 0
+	notes := map[int]int{}
+
+	if len(search) != 0 {
+		searchNotes, err := nm.indexManager.GetFilteredTitleNoteIds(search)
+		if err != nil {
+
+		}
+		if len(searchNotes) != 0 {
+			for _, i := range searchNotes {
+				notes[i]++
+			}
+		}
+		filter++
+	}
+
+	if len(tagIds) != 0 {
+		tagNotes, err := nm.indexManager.GetFilteredTagNoteIds(tagIds...)
+		if err != nil {
+
+		}
+
+		if len(tagNotes) != 0 {
+			for _, i := range tagNotes {
+				notes[i]++
+			}
+		}
+		filter++
+	}
+
+	if themeId >= 0 {
+		themeNotes, err := nm.indexManager.GetFilteredThemeNoteIds(themeId)
+		if err != nil {
+
+		}
+
+		if len(themeNotes) != 0 {
+			for _, i := range themeNotes {
+				notes[i]++
+			}
+		}
+		filter++
+	}
+
+	res := []NoteCard{}
+
+	if filter != 0 && len(notes) != 0 {
+		noteIds := []int{}
+
+		for k, v := range notes {
+			if v == filter {
+				noteIds = append(noteIds, k)
+			}
+		}
+
+		completedNotes, err := nm.indexManager.GetCompletedNotesFilteredNoteIds(noteIds...)
+		if err != nil {
+
+		}
+		noteIndexes, err := nm.indexManager.GetNoteIndexesFilteredNoteIds(noteIds...)
+		if err != nil {
+
+		}
+
+		for i := 0; i < len(noteIds); i++ {
+			note := completedNotes[i]
+			noteIndex := noteIndexes[i]
+			res = append(res, NoteCard{
+				Note:        note,
+				Completed:   noteIndex.Completed,
+				ThemeId:     noteIndex.ThemeId,
+				TagsId:      noteIndex.TagIds,
+				NoteColorId: noteIndex.NoteColorId,
+				CreatedAt:   noteIndex.CreatedAt,
+			})
+		}
+	}
+
+	return res, nil
 }
 
 func (nm *NoteManager) RemoveLastNote() {
