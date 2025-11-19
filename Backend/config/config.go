@@ -5,6 +5,7 @@ import (
 	"fmt"
 
 	"github.com/PlopyBlopy/notebot/internal/adapters/note"
+	"github.com/PlopyBlopy/notebot/pkg/httpserver"
 	"github.com/PlopyBlopy/notebot/pkg/tgbot"
 	"github.com/caarlos0/env/v6"
 	"github.com/joho/godotenv"
@@ -16,14 +17,14 @@ type App struct {
 }
 
 type Config struct {
-	Environment string              `env:"ENVIRONMENT" envDefault:"development"`
-	App         App                 `env-prefix:"APP_"`
-	TgBot       tgbot.Config        `env-prefix:"BOT_"`
-	Metadata    note.MetadataConfig `env-prefix:"MD_"`
+	Environment string                      `env:"ENVIRONMENT" envDefault:"development"`
+	App         App                         `env-prefix:"APP_"`
+	TgBot       tgbot.Config                `env-prefix:"BOT_"`
+	Metadata    note.MetadataConfig         `env-prefix:"MD_"`
+	HttpServer  httpserver.HttpServerConfig `env-prefix:"HTTP_"`
 }
 
 func InitConfig() (Config, error) {
-
 	envFlag := flag.String("env", "development", "Environment: development|production")
 
 	godotenv.Load(".env." + *envFlag)
