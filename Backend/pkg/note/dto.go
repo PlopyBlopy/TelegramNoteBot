@@ -9,6 +9,24 @@ type Note struct {
 	Title       string
 	Description string
 }
+type Tag struct {
+	Id      int
+	Title   string
+	ColorId int
+}
+
+type Theme struct {
+	Id    int
+	Title string
+}
+
+// срезы для цветов тега и карточек заметок
+type Color struct {
+	Id       int
+	Name     string
+	Variable string
+}
+
 type NoteCard struct {
 	Note        Note
 	Completed   bool

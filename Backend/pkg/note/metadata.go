@@ -16,24 +16,6 @@ type MetadataConfig struct {
 	NoteFilename      string `env:"MD_NOTE_FILE_NAME"`
 }
 
-type Tag struct {
-	Id      int
-	Title   string
-	ColorId int
-}
-
-type Theme struct {
-	Id    int
-	Title string
-}
-
-// срезы для цветов тега и карточек заметок
-type Color struct {
-	Id       int
-	Name     string
-	Variable string
-}
-
 type Metadata struct {
 	CurrentId      int     `json:"current_id"` // last note id for autoincrement
 	Themes         []Theme `json:"themes"`
@@ -199,7 +181,6 @@ func (mm *MetadataManager) GetNoteId() int {
 }
 
 func (mm *MetadataManager) GetTags() ([]Tag, error) {
-
 	return mm.m.Tags, nil
 }
 func (mm *MetadataManager) GetTagIds() ([]int, error) {
