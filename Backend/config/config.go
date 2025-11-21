@@ -38,7 +38,7 @@ func InitConfig() (Config, error) {
 		return cfg, fmt.Errorf("incorrect format environment. %w", err)
 	}
 
-	log.Info().Msg(cfg.Environment)
+	log.Info().Msgf("environment: %s", cfg.Environment)
 
 	if strings.EqualFold(cfg.Environment, "development") {
 		cfg.Isdev = true
