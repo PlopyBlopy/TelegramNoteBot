@@ -37,8 +37,8 @@ type IMetadataManager interface {
 	NoteFileName() string
 	NoteIndexFileName() string
 
-	AddTheme(theme Theme) error
-	AddTag(tag Tag) error
+	AddTheme(title string) error
+	AddTag(title string, colorId int) error
 
 	GetTags() ([]Tag, error)
 	GetTagIds() ([]int, error)
@@ -108,7 +108,7 @@ func (mm MetadataManager) getMetadataOrCreate() error {
 	return nil
 }
 
-func (mm *MetadataManager) AddTheme(theme Theme) error {
+func (mm *MetadataManager) AddTheme(title string) error {
 	metadata := Metadata{}
 
 	p := filepath.Join(mm.BasePath(), mm.MetadataFileName())
@@ -116,10 +116,15 @@ func (mm *MetadataManager) AddTheme(theme Theme) error {
 	json.Unmarshal(b, &metadata)
 
 	for i := 0; i < len(metadata.Themes); i++ {
-		if metadata.Themes[i].Title == theme.Title {
-			return fmt.Errorf("failed append theme, an themes with a similar title already exists, title: %s", theme.Title)
+		if metadata.Themes[i].Title == title {
+			return fmt.Errorf("failed append theme, an themes with a similar title already exists, title: %s", title)
 
 		}
+	}
+
+	theme := Theme{
+		Id:    len(metadata.Themes),
+		Title: title,
 	}
 
 	// append to file slice
@@ -134,7 +139,7 @@ func (mm *MetadataManager) AddTheme(theme Theme) error {
 }
 
 // append tags to file and virtual
-func (mm *MetadataManager) AddTag(tag Tag) error {
+func (mm *MetadataManager) AddTag(title string, colorId int) error {
 
 	metadata := Metadata{}
 
@@ -143,9 +148,15 @@ func (mm *MetadataManager) AddTag(tag Tag) error {
 	json.Unmarshal(b, &metadata)
 
 	for i := 0; i < len(metadata.Tags); i++ {
-		if metadata.Tags[i].Title == tag.Title {
-			return fmt.Errorf("failed append tags, an tag with a similar title already exists, title: %s", tag.Title)
+		if metadata.Tags[i].Title == title {
+			return fmt.Errorf("failed append tags, an tag with a similar title already exists, title: %s", title)
 		}
+	}
+
+	tag := Tag{
+		Id:      len(metadata.Tags),
+		Title:   title,
+		ColorId: colorId,
 	}
 
 	// append to file slice
