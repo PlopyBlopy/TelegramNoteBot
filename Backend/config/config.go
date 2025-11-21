@@ -3,12 +3,14 @@ package config
 import (
 	"flag"
 	"fmt"
+	"strings"
 
-	"github.com/PlopyBlopy/notebot/internal/adapters/note"
 	"github.com/PlopyBlopy/notebot/pkg/httpserver"
+	"github.com/PlopyBlopy/notebot/pkg/note"
 	"github.com/PlopyBlopy/notebot/pkg/tgbot"
 	"github.com/caarlos0/env/v6"
 	"github.com/joho/godotenv"
+	"github.com/rs/zerolog/log"
 )
 
 type App struct {
@@ -17,7 +19,8 @@ type App struct {
 }
 
 type Config struct {
-	Environment string                      `env:"ENVIRONMENT" envDefault:"development"`
+	Environment string `env:"ENVIRONMENT" envDefault:"development"`
+	Isdev       bool
 	App         App                         `env-prefix:"APP_"`
 	TgBot       tgbot.Config                `env-prefix:"BOT_"`
 	Metadata    note.MetadataConfig         `env-prefix:"MD_"`
@@ -26,12 +29,19 @@ type Config struct {
 
 func InitConfig() (Config, error) {
 	envFlag := flag.String("env", "development", "Environment: development|production")
+	flag.Parse()
 
 	godotenv.Load(".env." + *envFlag)
 
 	var cfg Config
 	if err := env.Parse(&cfg); err != nil {
 		return cfg, fmt.Errorf("incorrect format environment. %w", err)
+	}
+
+	log.Info().Msg(cfg.Environment)
+
+	if strings.EqualFold(cfg.Environment, "development") {
+		cfg.Isdev = true
 	}
 
 	return cfg, nil
