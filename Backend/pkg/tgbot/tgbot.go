@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"strconv"
 
-	"github.com/PlopyBlopy/notebot/internal/router"
+	"github.com/PlopyBlopy/notebot/internal/controller/router"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"github.com/rs/zerolog/log"
 )
@@ -44,9 +44,13 @@ func (b *Bot) Run(c Config) error {
 	u.Timeout = timeout
 
 	updates := b.api.GetUpdatesChan(u)
-
+	b.api.StopReceivingUpdates()
 	for update := range updates {
 		b.router.HandleUpdate(b.api, update)
 	}
 	return nil
+}
+
+func (b *Bot) Shutdown() {
+	b.api.StopReceivingUpdates()
 }
