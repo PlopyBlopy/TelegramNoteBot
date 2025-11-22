@@ -12,7 +12,7 @@ type Router struct {
 	handlers map[string]HandleFunc
 }
 
-func NewRouter() *Router {
+func NewBotRouter() *Router {
 	return &Router{
 		handlers: make(map[string]HandleFunc),
 	}
