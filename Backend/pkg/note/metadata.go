@@ -119,7 +119,7 @@ func (mm *MetadataManager) AddTheme(title string) error {
 	json.Unmarshal(b, &metadata)
 
 	for i := 0; i < len(metadata.Themes); i++ {
-		if metadata.Themes[i].Title == title {
+		if strings.EqualFold(metadata.Themes[i].Title, title) {
 			return fmt.Errorf("failed append theme, an themes with a similar title already exists, title: %s", title)
 
 		}
@@ -150,9 +150,21 @@ func (mm *MetadataManager) AddTag(title string, colorId int) error {
 	json.Unmarshal(b, &metadata)
 
 	for i := 0; i < len(metadata.Tags); i++ {
-		if metadata.Tags[i].Title == title {
-			return fmt.Errorf("failed append tags, an tag with a similar title already exists, title: %s", title)
+		if strings.EqualFold(metadata.Tags[i].Title, title) {
+			return fmt.Errorf("failed append tag, an tag with a similar title already exists, title: %s", title)
 		}
+	}
+
+	colorIdExist := false
+	for _, c := range mm.m.TagColors {
+		if c.Id == colorId {
+			colorIdExist = true
+			break
+		}
+	}
+
+	if !colorIdExist {
+		return fmt.Errorf("failed append tag, the color of the tag with the id does not exist, colorId: %d", colorId)
 	}
 
 	tag := Tag{
