@@ -10,7 +10,7 @@ type IMetadataManager interface {
 	AddTag(title string, colorId int) error
 	AddTheme(title string) error
 	AddTagColor(name, variable string) error
-	// AddCardColor(name, variable string) error
+	AddCardColor(name, variable string) error
 
 	GetTags() ([]note.Tag, error)
 	GetThemes() ([]note.Theme, error)
@@ -46,7 +46,16 @@ func (ms MetadataService) AddTheme(title string) error {
 func (ms MetadataService) AddTagColor(name, variable string) error {
 	err := ms.metadataManager.AddTagColor(name, variable)
 	if err != nil {
-		return fmt.Errorf("failed add theme: %w", err)
+		return fmt.Errorf("failed add tag color: %w", err)
+	}
+
+	return nil
+}
+
+func (ms MetadataService) AddCardColor(name, variable string) error {
+	err := ms.metadataManager.AddCardColor(name, variable)
+	if err != nil {
+		return fmt.Errorf("failed add card color: %w", err)
 	}
 
 	return nil

@@ -41,6 +41,7 @@ type IMetadataManager interface {
 	AddTheme(title string) error
 	AddTag(title string, colorId int) error
 	AddTagColor(name, variable string) error
+	AddCardColor(name, variable string) error
 
 	GetTags() ([]Tag, error)
 	GetTagIds() ([]int, error)
@@ -196,6 +197,38 @@ func (mm *MetadataManager) AddTagColor(name, variable string) error {
 	metadata.TagColors = append(metadata.TagColors, tagColor)
 	// append to virtual slice
 	mm.m.TagColors = append(mm.m.TagColors, tagColor)
+
+	b, _ = json.Marshal(metadata)
+	os.WriteFile(p, b, 0666)
+
+	return nil
+}
+
+func (mm *MetadataManager) AddCardColor(name, variable string) error {
+	metadata := Metadata{}
+
+	p := filepath.Join(mm.BasePath(), mm.MetadataFileName())
+	b, _ := os.ReadFile(p)
+	json.Unmarshal(b, &metadata)
+
+	for i := 0; i < len(metadata.NoteCardColors); i++ {
+		if strings.EqualFold(metadata.NoteCardColors[i].Name, name) {
+			return fmt.Errorf("failed append note card color, an note card colors with a similar name already exists, name: %s", name)
+		} else if strings.EqualFold(metadata.NoteCardColors[i].Variable, variable) {
+			return fmt.Errorf("failed append note card color, an note card colors with a similar variable already exists, variable: %s", variable)
+		}
+	}
+
+	noteCardColor := Color{
+		Id:       len(metadata.NoteCardColors),
+		Name:     name,
+		Variable: variable,
+	}
+
+	// append to file slice
+	metadata.NoteCardColors = append(metadata.NoteCardColors, noteCardColor)
+	// append to virtual slice
+	mm.m.NoteCardColors = append(mm.m.NoteCardColors, noteCardColor)
 
 	b, _ = json.Marshal(metadata)
 	os.WriteFile(p, b, 0666)
