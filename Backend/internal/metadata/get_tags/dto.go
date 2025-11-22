@@ -7,5 +7,5 @@ type output struct {
 type tag struct {
 	Id      int    `json:"id"`
 	Title   string `json:"title"`
-	ColorId int    `json:"color_id"`
+	ColorId int    `json:"colorId"`
 }
