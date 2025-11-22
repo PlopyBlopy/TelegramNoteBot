@@ -7,8 +7,7 @@ import (
 )
 
 type IMetadataManager interface {
-	// AddTag(title string, colorId int)
-	// AddTheme(title string)
+	AddTag(title string, colorId int) error
 	// AddTagColor(name, variable string) error
 	// AddThemeColor(name, variable string) error
 
@@ -24,6 +23,14 @@ type MetadataService struct {
 
 func NewMetadataService(mm IMetadataManager) (*MetadataService, error) {
 	return &MetadataService{metadataManager: mm}, nil
+}
+func (ms MetadataService) AddTag(title string, colorId int) error {
+	err := ms.metadataManager.AddTag(title, colorId)
+	if err != nil {
+		return fmt.Errorf("failed add tag: %w", err)
+	}
+
+	return nil
 }
 
 func (ms MetadataService) GetTags() ([]note.Tag, error) {
