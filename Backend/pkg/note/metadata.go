@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"strings"
 )
 
 type MetadataConfig struct {
@@ -39,6 +40,7 @@ type IMetadataManager interface {
 
 	AddTheme(title string) error
 	AddTag(title string, colorId int) error
+	AddTagColor(name, variable string) error
 
 	GetTags() ([]Tag, error)
 	GetTagIds() ([]int, error)
@@ -140,7 +142,6 @@ func (mm *MetadataManager) AddTheme(title string) error {
 
 // append tags to file and virtual
 func (mm *MetadataManager) AddTag(title string, colorId int) error {
-
 	metadata := Metadata{}
 
 	p := filepath.Join(mm.BasePath(), mm.MetadataFileName())
@@ -163,6 +164,38 @@ func (mm *MetadataManager) AddTag(title string, colorId int) error {
 	metadata.Tags = append(metadata.Tags, tag)
 	// append to virtual slice
 	mm.m.Tags = append(mm.m.Tags, tag)
+
+	b, _ = json.Marshal(metadata)
+	os.WriteFile(p, b, 0666)
+
+	return nil
+}
+
+func (mm *MetadataManager) AddTagColor(name, variable string) error {
+	metadata := Metadata{}
+
+	p := filepath.Join(mm.BasePath(), mm.MetadataFileName())
+	b, _ := os.ReadFile(p)
+	json.Unmarshal(b, &metadata)
+
+	for i := 0; i < len(metadata.TagColors); i++ {
+		if strings.EqualFold(metadata.TagColors[i].Name, name) {
+			return fmt.Errorf("failed append tag color, an tag colors with a similar name already exists, name: %s", name)
+		} else if strings.EqualFold(metadata.TagColors[i].Variable, variable) {
+			return fmt.Errorf("failed append tag color, an tag colors with a similar variable already exists, variable: %s", variable)
+		}
+	}
+
+	tagColor := Color{
+		Id:       len(metadata.TagColors),
+		Name:     name,
+		Variable: variable,
+	}
+
+	// append to file slice
+	metadata.TagColors = append(metadata.TagColors, tagColor)
+	// append to virtual slice
+	mm.m.TagColors = append(mm.m.TagColors, tagColor)
 
 	b, _ = json.Marshal(metadata)
 	os.WriteFile(p, b, 0666)
