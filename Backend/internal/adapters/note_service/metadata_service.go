@@ -14,8 +14,7 @@ type IMetadataManager interface {
 
 	GetTags() ([]note.Tag, error)
 	GetThemes() ([]note.Theme, error)
-	// GetTagColors() ([]note.Color, error)
-	// GetThemeColors() ([]note.Color, error)
+	GetTagColors() ([]note.Color, error)
 	GetCardColors() ([]note.Color, error)
 }
 
@@ -77,20 +76,13 @@ func (ms MetadataService) GetThemes() ([]note.Theme, error) {
 	return themes, nil
 }
 
-// func (ms MetadataService) GetTagColors() ([]note.Color, error) {
-// 	tagColors, err := ms.metadataManager.GetTagColors()
-// 	if err != nil {
-// 		return nil, fmt.Errorf("failed get theme colors: %w", err)
-// 	}
-// 	return tagColors, nil
-// }
-// func (ms MetadataService) GetThemeColors() ([]note.Color, error) {
-// 	themeColors, err := ms.metadataManager.GetThemeColors()
-// 	if err != nil {
-// 		return nil, fmt.Errorf("failed get tag colors: %w", err)
-// 	}
-// 	return themeColors, nil
-// }
+func (ms MetadataService) GetTagColors() ([]note.Color, error) {
+	colors, err := ms.metadataManager.GetTagColors()
+	if err != nil {
+		return nil, fmt.Errorf("failed get tag colors: %w", err)
+	}
+	return colors, nil
+}
 
 func (ms MetadataService) GetCardColors() ([]note.Color, error) {
 	colors, err := ms.metadataManager.GetCardColors()

@@ -45,6 +45,7 @@ type IMetadataManager interface {
 
 	GetTags() ([]Tag, error)
 	GetTagIds() ([]int, error)
+	GetTagColors() ([]Color, error)
 	GetThemes() ([]Theme, error)
 	GetThemeIds() ([]int, error)
 	GetCardColors() ([]Color, error)
@@ -281,6 +282,9 @@ func (mm *MetadataManager) GetTagIds() ([]int, error) {
 	}
 
 	return tagIds, nil
+}
+func (mm *MetadataManager) GetTagColors() ([]Color, error) {
+	return mm.m.TagColors, nil
 }
 func (mm *MetadataManager) GetThemes() ([]Theme, error) {
 	return mm.m.Themes, nil
