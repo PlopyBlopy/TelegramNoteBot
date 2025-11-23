@@ -16,6 +16,7 @@ type IMetadataManager interface {
 	GetThemes() ([]note.Theme, error)
 	// GetTagColors() ([]note.Color, error)
 	// GetThemeColors() ([]note.Color, error)
+	GetCardColors() ([]note.Color, error)
 }
 
 type MetadataService struct {
@@ -90,3 +91,11 @@ func (ms MetadataService) GetThemes() ([]note.Theme, error) {
 // 	}
 // 	return themeColors, nil
 // }
+
+func (ms MetadataService) GetCardColors() ([]note.Color, error) {
+	colors, err := ms.metadataManager.GetCardColors()
+	if err != nil {
+		return nil, fmt.Errorf("failed get card colors: %w", err)
+	}
+	return colors, nil
+}

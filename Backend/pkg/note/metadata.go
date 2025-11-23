@@ -47,6 +47,7 @@ type IMetadataManager interface {
 	GetTagIds() ([]int, error)
 	GetThemes() ([]Theme, error)
 	GetThemeIds() ([]int, error)
+	GetCardColors() ([]Color, error)
 }
 
 func NewMetadataManager(c *MetadataConfig) (*MetadataManager, error) {
@@ -292,6 +293,9 @@ func (mm *MetadataManager) GetThemeIds() ([]int, error) {
 	}
 
 	return themeIds, nil
+}
+func (mm *MetadataManager) GetCardColors() ([]Color, error) {
+	return mm.m.NoteCardColors, nil
 }
 
 // append theme to file and virtual
